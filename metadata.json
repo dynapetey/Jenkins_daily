@@ -1,0 +1,6 @@
+{
+  "name": "Jenkins Pay & Load Manager",
+  "description": "OCR automated transport paysheet and load manager that extracts manifest details from PDFs, decodes VIN specifications via NHTSA, and updates Google Sheets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
