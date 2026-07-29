@@ -1,20 +1,18 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Jenkins Daily Loads
 
-# Run and deploy your AI Studio app
+A minimal, mobile-first view of the current day's vehicle loads in Google Sheets.
 
-This contains everything you need to run your app locally.
+## Run locally
 
-View your app in AI Studio: https://ai.studio/apps/84975fb0-60a8-4887-9735-6c2a709d954e
+Requires Node.js 20 or newer.
 
-## Run Locally
+```bash
+npm install
+npm run dev
+```
 
-**Prerequisites:**  Node.js
+Sign in with the Google account configured for the Firebase project. The app finds
+`YYYY-MM-DD_LOAD Sheet` using the phone's local date, reads vehicle rows from
+`Sheet1`, and writes completion changes back immediately.
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Use `npm run lint` to type-check and `npm run build` to create the production bundle.
