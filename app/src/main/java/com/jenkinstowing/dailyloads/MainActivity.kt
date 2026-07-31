@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     private val driveScope = "https://www.googleapis.com/auth/drive.metadata.readonly"
     private val tokenScope = "oauth2:$sheetScope $driveScope"
     private val amber = Color.rgb(255, 196, 0)
-    private val background = Color.rgb(11, 13, 16)
+    private val backgroundColor = Color.rgb(11, 13, 16)
     private val ink = Color.rgb(247, 248, 250)
     private val muted = Color.rgb(174, 180, 190)
     private val surface = Color.rgb(23, 26, 31)
@@ -89,15 +89,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = background
-        window.navigationBarColor = background
+        window.statusBarColor = backgroundColor
+        window.navigationBarColor = backgroundColor
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16))
-            setBackgroundColor(background)
+            setBackgroundColor(backgroundColor)
         }
         val scroll = ScrollView(this).apply {
-            setBackgroundColor(background)
+            setBackgroundColor(backgroundColor)
             addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
         setContentView(scroll)
