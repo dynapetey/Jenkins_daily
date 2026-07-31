@@ -24,15 +24,17 @@ export default function App() {
   const [signingIn, setSigningIn] = useState(false);
   const [savingRows, setSavingRows] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string | null>(null);
-  const date = localDateStamp();
+  const [date, setDate] = useState(localDateStamp);
 
   const loadToday = useCallback(async (token: string) => {
+    const currentDate = localDateStamp();
+    setDate(currentDate);
     setLoading(true);
     setError(null);
-    try { setSheet(await getTodaySheet(token, date)); }
+    try { setSheet(await getTodaySheet(token, currentDate)); }
     catch (err) { setSheet(null); setError(messageFor(err)); }
     finally { setLoading(false); }
-  }, [date]);
+  }, []);
 
   useEffect(() => initAuth(
     (currentUser, token) => { setUser(currentUser); setAccessToken(token); void loadToday(token); },
@@ -77,7 +79,7 @@ export default function App() {
 
   return <main className="app-shell">
     <header className="topbar"><div><p className="eyebrow">Jenkins Daily</p><h1>Today’s loads</h1><p className="date">{date}</p></div>
-      <div className="header-actions"><button className="icon-button" onClick={() => loadToday(accessToken)} disabled={loading} aria-label="Refresh today’s loads"><RefreshCw className={loading ? "spin" : ""} /></button><button className="icon-button" onClick={signOut} aria-label="Sign out"><LogOut /></button></div>
+      <div className="header-actions"><button className="icon-button" onClick={() => loadToday(accessToken)} disabled={loading || savingRows.size > 0} aria-label="Refresh today’s loads"><RefreshCw className={loading ? "spin" : ""} /></button><button className="icon-button" onClick={signOut} aria-label="Sign out"><LogOut /></button></div>
     </header>
     {error && <div className="error content-error" role="alert">{error}</div>}
     {loading ? <div className="state-panel"><LoaderCircle className="spin" /><p>Loading today’s sheet…</p></div>

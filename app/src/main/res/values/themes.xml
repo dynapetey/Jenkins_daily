@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.JenkinsDaily" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/jenkins_green</item>
+        <item name="colorPrimaryVariant">@color/jenkins_green_dark</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:navigationBarColor">@color/screen_background</item>
+        <item name="android:statusBarColor">@color/screen_background</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

@@ -23,11 +23,14 @@ export async function getTodaySheet(accessToken: string, date: string): Promise<
   const fileName = `${date}_LOAD Sheet`; const escapedName = fileName.replace(/'/g, "\\'");
   const params = new URLSearchParams({ q: `name='${escapedName}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`, fields: "files(id,name)", pageSize: "10" });
   const drive = await googleFetch<{ files?: Array<{ id: string; name: string }> }>(`${DRIVE_FILES}?${params}`, accessToken);
-  const file = drive.files?.find((item) => item.name === fileName); if (!file) throw new Error(`Couldn’t find “${fileName}” in Google Drive.`);
+  const matches = drive.files?.filter((item) => item.name === fileName) ?? [];
+  if (matches.length === 0) throw new Error(`Couldn’t find “${fileName}” in Google Drive.`);
+  if (matches.length > 1) throw new Error(`Found more than one “${fileName}”. Keep one daily sheet or move duplicates to trash.`);
+  const file = matches[0];
   const values = await googleFetch<{ values?: string[][] }>(`${SHEETS}/${file.id}/values/${encodeURIComponent("'Sheet1'")}`, accessToken);
   const rows = values.values ?? []; if (rows.length === 0) throw new Error("Sheet1 is empty and has no header row.");
   const headers = rows[0].map(String); let completedColumn = findColumn(headers, aliases.completed);
-  if (completedColumn < 0) { completedColumn = headers.length; const target = encodeURIComponent(`'Sheet1'!${columnLetter(completedColumn)}1`); await googleFetch(`${SHEETS}/${file.id}/values/${target}?valueInputOption=RAW`, accessToken, { method: "PUT", body: JSON.stringify({ values: [["Completed"]] }) }); }
+  if (completedColumn < 0) { completedColumn = Math.max(...rows.map((row) => row.length)); const target = encodeURIComponent(`'Sheet1'!${columnLetter(completedColumn)}1`); await googleFetch(`${SHEETS}/${file.id}/values/${target}?valueInputOption=RAW`, accessToken, { method: "PUT", body: JSON.stringify({ values: [["Completed"]] }) }); }
   const columns = { vehicleDetails: findColumn(headers, aliases.vehicleDetails), vin: findColumn(headers, aliases.vin), origin: findColumn(headers, aliases.origin), destination: findColumn(headers, aliases.destination), notes: findColumn(headers, aliases.notes), drivetrain: findColumn(headers, aliases.drivetrain), epb: findColumn(headers, aliases.epb) };
   const loads: Load[] = rows.slice(1).flatMap((row, index) => Object.values(columns).some((column) => cell(row, column) !== "") ? [{ rowNumber: index + 2, vehicleDetails: cell(row, columns.vehicleDetails), vin: cell(row, columns.vin), origin: cell(row, columns.origin), destination: cell(row, columns.destination), notes: cell(row, columns.notes), drivetrain: cell(row, columns.drivetrain), epb: cell(row, columns.epb), completed: isCompleted(cell(row, completedColumn)) }] : []);
   return { spreadsheetId: file.id, completedColumn, loads };

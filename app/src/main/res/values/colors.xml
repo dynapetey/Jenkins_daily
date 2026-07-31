@@ -1,0 +1,5 @@
+<resources>
+    <color name="jenkins_green">#2D6D3D</color>
+    <color name="jenkins_green_dark">#234F30</color>
+    <color name="screen_background">#F3F5F1</color>
+</resources>
