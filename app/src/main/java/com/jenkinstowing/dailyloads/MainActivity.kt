@@ -70,10 +70,10 @@ class MainActivity : AppCompatActivity() {
             account = task.getResult(ApiException::class.java)
             acquireTokenAndLoad()
         } catch (error: ApiException) {
-            val message = if (error.statusCode == GoogleSignInStatusCodes.SIGN_IN_CANCELLED) {
-                "Google sign-in was cancelled."
-            } else {
-                "Google sign-in failed (${error.statusCode})."
+            val message = when (error.statusCode) {
+                GoogleSignInStatusCodes.SIGN_IN_CANCELLED -> "Google sign-in was cancelled."
+                10 -> "Google OAuth is not configured for this APK. Add Android package com.jenkinstowing.dailyloads with SHA-1 85:AE:71:AA:12:BE:1E:A1:DD:17:67:68:16:00:1E:C9:8A:EF:99:6E to the Google Cloud project."
+                else -> "Google sign-in failed (${error.statusCode}): ${GoogleSignInStatusCodes.getStatusCodeString(error.statusCode)}"
             }
             showSignedOut(message)
         }

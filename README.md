@@ -12,9 +12,15 @@ changes directly to the matching sheet row.
 The GitHub Actions **Build Android APK** workflow builds a debug APK for every
 pull request and uploads it as the `Jenkins-Daily-debug` artifact.
 
-Before distributing a signed release, add an Android OAuth client for
-`com.jenkinstowing.dailyloads` and the signing certificate SHA-1 to the same
-Google Cloud project used by the load sheets.
+For the GitHub-built debug APK, add an Android OAuth client to the same Google
+Cloud project used by the load sheets with:
+
+- Package: `com.jenkinstowing.dailyloads`
+- SHA-1: `85:AE:71:AA:12:BE:1E:A1:DD:17:67:68:16:00:1E:C9:8A:EF:99:6E`
+
+The committed key is for test APKs only. Before distributing a release, use a
+private release key and register that key's SHA-1 as a separate Android OAuth
+client.
 
 To build with a local Gradle 8.11.1 installation:
 
