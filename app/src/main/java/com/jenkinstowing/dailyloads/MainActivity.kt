@@ -1,6 +1,7 @@
 package com.jenkinstowing.dailyloads
 
 import android.accounts.Account
+import android.content.res.ColorStateList
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
@@ -40,10 +41,12 @@ class MainActivity : AppCompatActivity() {
     private val sheetScope = "https://www.googleapis.com/auth/spreadsheets"
     private val driveScope = "https://www.googleapis.com/auth/drive.metadata.readonly"
     private val tokenScope = "oauth2:$sheetScope $driveScope"
-    private val green = Color.rgb(45, 109, 61)
-    private val ink = Color.rgb(23, 32, 26)
-    private val muted = Color.rgb(100, 112, 105)
-    private val surface = Color.WHITE
+    private val amber = Color.rgb(255, 196, 0)
+    private val background = Color.rgb(11, 13, 16)
+    private val ink = Color.rgb(247, 248, 250)
+    private val muted = Color.rgb(174, 180, 190)
+    private val surface = Color.rgb(23, 26, 31)
+    private val surfaceBorder = Color.rgb(53, 58, 67)
 
     private lateinit var root: LinearLayout
     private lateinit var refreshButton: Button
@@ -86,14 +89,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = Color.rgb(243, 245, 241)
-        window.navigationBarColor = Color.rgb(243, 245, 241)
+        window.statusBarColor = background
+        window.navigationBarColor = background
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16))
+            setBackgroundColor(background)
         }
         val scroll = ScrollView(this).apply {
-            setBackgroundColor(Color.rgb(243, 245, 241))
+            setBackgroundColor(background)
             addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
         setContentView(scroll)
@@ -147,7 +151,7 @@ class MainActivity : AppCompatActivity() {
         root.removeAllViews()
         root.gravity = Gravity.CENTER_HORIZONTAL
         root.addView(space(72))
-        root.addView(text("JENKINS DAILY", 12f, green, true).apply { letterSpacing = .14f })
+        root.addView(text("JENKINS DAILY", 12f, amber, true).apply { letterSpacing = .14f })
         root.addView(text("Today’s loads,\nready to roll.", 34f, ink, true).apply {
             gravity = Gravity.CENTER
             setPadding(0, dp(14), 0, dp(12))
@@ -162,7 +166,8 @@ class MainActivity : AppCompatActivity() {
             isAllCaps = false
             textSize = 16f
             setTextColor(Color.WHITE)
-            background = rounded(green, 14)
+            background = rounded(amber, 14)
+            setTextColor(Color.rgb(17, 19, 23))
             setPadding(dp(18), dp(12), dp(18), dp(12))
             setOnClickListener { signInLauncher.launch(signInClient.signInIntent) }
         }, matchWrap(top = 10))
@@ -213,6 +218,18 @@ class MainActivity : AppCompatActivity() {
             addView(text("$complete completed", 14f, muted, true))
         }, matchWrap(bottom = 12))
         dailySheet.loads.forEach { root.addView(loadCard(it), matchWrap(bottom = 12)) }
+        val nextLoad = dailySheet.loads.firstOrNull { !it.completed }
+        root.addView(Button(this).apply {
+            isAllCaps = true
+            text = if (nextLoad == null) "All loads completed" else "✓  Complete next load"
+            textSize = 16f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(Color.rgb(17, 19, 23))
+            background = rounded(amber, 14)
+            isEnabled = nextLoad != null && pendingWrites == 0
+            setPadding(dp(18), dp(14), dp(18), dp(14))
+            setOnClickListener { nextLoad?.let(::toggleCompleted) }
+        }, matchWrap(top = 4, bottom = 28))
     }
 
     private fun addHeader(date: String) {
@@ -221,7 +238,7 @@ class MainActivity : AppCompatActivity() {
             gravity = Gravity.TOP
             val title = LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.VERTICAL
-                addView(text("JENKINS DAILY", 11f, green, true).apply { letterSpacing = .14f })
+                addView(text("JENKINS DAILY", 11f, amber, true).apply { letterSpacing = .14f })
                 addView(text("Today’s loads", 32f, ink, true))
                 addView(text(date, 14f, muted))
             }
@@ -230,9 +247,10 @@ class MainActivity : AppCompatActivity() {
                 text = "↻"
                 contentDescription = "Refresh today’s loads"
                 textSize = 24f
+                setTextColor(ink)
                 minWidth = dp(48)
                 isEnabled = !loading && pendingWrites == 0
-                background = rounded(surface, 14, Color.rgb(215, 221, 213))
+                background = rounded(surface, 14, surfaceBorder)
                 setOnClickListener { loadToday() }
             }
             addView(refreshButton, LinearLayout.LayoutParams(dp(52), dp(48)).apply { marginEnd = dp(8) })
@@ -240,8 +258,9 @@ class MainActivity : AppCompatActivity() {
                 text = "⎋"
                 contentDescription = "Sign out"
                 textSize = 20f
+                setTextColor(ink)
                 minWidth = dp(48)
-                background = rounded(surface, 14, Color.rgb(215, 221, 213))
+                background = rounded(surface, 14, surfaceBorder)
                 setOnClickListener {
                     lifecycleScope.launch {
                         accessToken?.let { token -> withContext(Dispatchers.IO) { GoogleAuthUtil.clearToken(this@MainActivity, token) } }
@@ -261,13 +280,17 @@ class MainActivity : AppCompatActivity() {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16))
-            alpha = if (load.completed) .82f else 1f
-            background = rounded(surface, 18, Color.rgb(220, 225, 219))
+            alpha = if (load.completed) .55f else 1f
+            background = rounded(surface, 16, surfaceBorder)
 
             addView(CheckBox(this@MainActivity).apply {
                 text = if (load.completed) "Completed" else "Mark completed"
                 isChecked = load.completed
-                setTextColor(green)
+                buttonTintList = ColorStateList(
+                    arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+                    intArrayOf(amber, muted),
+                )
+                setTextColor(if (load.completed) amber else muted)
                 setTypeface(typeface, Typeface.BOLD)
                 setPadding(0, 0, 0, dp(10))
                 setOnClickListener { toggleCompleted(load) }
@@ -319,13 +342,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun detail(label: String, value: String) = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
-        addView(text(label.uppercase(), 11f, muted, true).apply { letterSpacing = .08f })
+        addView(text(label.uppercase(), 11f, amber, true).apply { letterSpacing = .08f })
         addView(text(value.ifBlank { "—" }, 15f, ink))
     }
 
-    private fun errorView(message: String) = text(message, 14f, Color.rgb(135, 60, 48)).apply {
+    private fun errorView(message: String) = text(message, 14f, Color.rgb(255, 190, 178)).apply {
         setPadding(dp(14))
-        background = rounded(Color.rgb(255, 242, 239), 12, Color.rgb(237, 201, 194))
+        background = rounded(Color.rgb(61, 28, 25), 12, Color.rgb(132, 66, 58))
     }
 
     private fun text(value: String, size: Float, color: Int, bold: Boolean = false) = TextView(this).apply {
