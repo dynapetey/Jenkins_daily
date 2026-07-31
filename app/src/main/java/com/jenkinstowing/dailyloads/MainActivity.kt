@@ -117,7 +117,8 @@ class MainActivity : AppCompatActivity() {
                 accessToken = token
                 loadToday()
             } catch (recoverable: UserRecoverableAuthException) {
-                permissionLauncher.launch(recoverable.intent)
+                recoverable.intent?.let(permissionLauncher::launch)
+                    ?: showSignedOut("Google Sheets permission could not be requested on this device.")
             } catch (error: Exception) {
                 showSignedOut(error.message ?: "Couldn’t connect to Google.")
             }
