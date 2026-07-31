@@ -8,8 +8,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JenkinsDaily"
         android:usesCleartextTraffic="false">
+        <activity android:name=".MainActivity" android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".loadsheet.LoadSheetActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

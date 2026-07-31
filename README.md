@@ -2,6 +2,19 @@
 
 A native Android app and mobile web view for the current day's vehicle loads in Google Sheets.
 
+## App workflow
+
+The Android app opens with the complete Load Sheet workflow from
+`dynapetey/Load-Sheet`: select PDF load sheets, render all pages, run Gemini
+OCR, decode VIN details with NHTSA, edit and verify the extracted loads, save a
+Room/CSV copy, and sync Jenkins Paysheet plus the dated Daily Load Sheet through
+the configured Apps Script URL. After a successful **Confirm & Apply to
+Spreadsheets**, the app opens the Dark Road Daily screen.
+
+Add repository secret `GEMINI_API_KEY` so GitHub-built APKs can run OCR. The
+Apps Script Web App URL and `Dailyloads.template` name remain configurable in
+the app, matching the reference Load-Sheet application.
+
 ## Android app
 
 The Android application lives in `app/` and uses package name
