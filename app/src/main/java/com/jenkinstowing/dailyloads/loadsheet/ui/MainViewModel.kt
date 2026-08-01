@@ -318,3 +318,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             newWidth = maxDimension
             newHeight = (maxDimension / ratio).toInt()
         } else {
+            newHeight = maxDimension
+            newWidth = (maxDimension * ratio).toInt()
+        }
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                recordDao.clearAll()
+            }
+        }
+    }
+}
