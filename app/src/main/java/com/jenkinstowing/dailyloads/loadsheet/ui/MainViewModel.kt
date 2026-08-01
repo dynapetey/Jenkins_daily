@@ -151,7 +151,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // Fetch key from BuildConfig
                 val apiKey = BuildConfig.GEMINI_API_KEY
                 if (apiKey.isBlank() || apiKey == "MY_GEMINI_API_KEY") {
-                    throw IllegalArgumentException("Gemini API Key is placeholder or missing. Please set it in the AI Studio Secrets panel.")
+                throw IllegalArgumentException("This APK was built without the GitHub GEMINI_API_KEY secret. Install the OCR-enabled APK.")
                 }
 
                 val geminiRecords = withContext(Dispatchers.IO) {
@@ -318,17 +318,3 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             newWidth = maxDimension
             newHeight = (maxDimension / ratio).toInt()
         } else {
-            newHeight = maxDimension
-            newWidth = (maxDimension * ratio).toInt()
-        }
-        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
-    }
-
-    fun clearHistory() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                recordDao.clearAll()
-            }
-        }
-    }
-}
