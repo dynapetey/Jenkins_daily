@@ -212,7 +212,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun applyAndSyncBatch(onSuccess: () -> Unit = {}) {
+    fun applyAndSyncBatch(onSuccess: (List<ExtractedRecord>) -> Unit = {}) {
         val batch = _currentBatch.value
         if (batch.isEmpty()) return
 
@@ -297,7 +297,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 _syncStatus.value = savedMessage
                 _currentBatch.value = emptyList() // Batch verified and cleared
-                onSuccess()
+                onSuccess(batch)
             } catch (e: Exception) {
                 e.printStackTrace()
                 _errorMessage.value = "Sync Error: ${e.localizedMessage}"

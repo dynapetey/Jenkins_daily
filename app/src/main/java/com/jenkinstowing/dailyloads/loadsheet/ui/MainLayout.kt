@@ -22,7 +22,7 @@ enum class AppTab(val title: String) {
 @Composable
 fun MainLayout(
     viewModel: MainViewModel,
-    onProcessingComplete: () -> Unit,
+    onProcessingComplete: (List<com.jenkinstowing.dailyloads.loadsheet.data.ExtractedRecord>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var activeTab by remember { mutableStateOf(AppTab.DASHBOARD) }

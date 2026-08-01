@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 fun VerificationScreen(
     viewModel: MainViewModel,
     onNavigateToDashboard: () -> Unit,
-    onProcessingComplete: () -> Unit,
+    onProcessingComplete: (List<com.jenkinstowing.dailyloads.loadsheet.data.ExtractedRecord>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentBatch by viewModel.currentBatch.collectAsState()

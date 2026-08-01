@@ -35,8 +35,13 @@ import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val EXTRA_PROCESSED_LOADS = "processed_loads_json"
+    }
+
     private val repository = GoogleSheetsRepository()
     private val sheetScope = "https://www.googleapis.com/auth/spreadsheets"
     private val driveScope = "https://www.googleapis.com/auth/drive.metadata.readonly"
@@ -102,9 +107,33 @@ class MainActivity : AppCompatActivity() {
         }
         setContentView(scroll)
 
-        account = GoogleSignIn.getLastSignedInAccount(this)
-        if (account == null) showSignedOut() else acquireTokenAndLoad()
+        val processedLoads = intent.getStringExtra(EXTRA_PROCESSED_LOADS)?.let(::parseProcessedLoads).orEmpty()
+        if (processedLoads.isNotEmpty()) {
+            sheet = DailySheet(spreadsheetId = "", completedColumn = -1, loads = processedLoads)
+            showLoads(LocalDate.now().toString())
+        } else {
+            account = GoogleSignIn.getLastSignedInAccount(this)
+            if (account == null) showSignedOut() else acquireTokenAndLoad()
+        }
     }
+
+    private fun parseProcessedLoads(json: String): List<Load> = runCatching {
+        val rows = JSONArray(json)
+        (0 until rows.length()).map { index ->
+            val row = rows.getJSONObject(index)
+            Load(
+                rowNumber = index + 2,
+                vehicleDetails = row.optString("vehicleDetails"),
+                vin = row.optString("vin"),
+                origin = row.optString("origin"),
+                destination = row.optString("destination"),
+                notes = row.optString("notes"),
+                drivetrain = row.optString("drivetrain"),
+                epb = row.optString("epb"),
+                completed = false,
+            )
+        }
+    }.getOrDefault(emptyList())
 
     private fun acquireTokenAndLoad() {
         val email = account?.email
